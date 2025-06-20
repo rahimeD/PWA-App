@@ -5,7 +5,6 @@ import { useNavigation } from "@react-navigation/native";
 import { DeviceContext } from "../context/DeviceProvider";
 import colors from "../constants/colors";
 
-
 export default function HomeScreen() {
     const navigation = useNavigation();
     const { deviceStatus } = useContext(DeviceContext);
@@ -13,14 +12,14 @@ export default function HomeScreen() {
     const lightStatus = deviceStatus.isLightOn ? "1 an" : "0 an";
     const doorStatus = deviceStatus.isDoorLocked ? "Gesperrt" : "Offen";
     const airStatus = deviceStatus.isAirConditionerOn ? "An" : "Aus";
-
     const currentConsumption = deviceStatus.currentConsumption ?? 1.25;
 
     return (
         <View style={styles.container}>
             <View style={styles.topBar}>
-                {/* Logo funktioniert nicht wie geplant */}
-                <Image source={require("../../assets/logo/logo.webp")} style={styles.logo} />
+                <View style={styles.logoContainer}>
+                    <Image source={require("../../assets/logo/logo.svg")} style={styles.logo} />
+                </View>
                 <TouchableOpacity onPress={() => navigation.replace("Login")} style={styles.logoutButton}>
                     <Icon name="logout" size={24} color="#fff" />
                 </TouchableOpacity>
@@ -30,7 +29,6 @@ export default function HomeScreen() {
                 <Text style={styles.title}>Willkommen bei Savergy</Text>
                 <Text style={styles.subtitle}>Deine Smart Home Steuerung</Text>
 
-                {/* Status Section - 3 Cards nebeneinander */}
                 <View style={styles.statusSection}>
                     <View style={styles.statusCard}>
                         <Icon name="lightbulb-outline" size={32} color="#FFD700" />
@@ -46,7 +44,6 @@ export default function HomeScreen() {
                     </View>
                 </View>
 
-                {/* Andere Cards - je 2 Cards nebeneinander; ScrollView für vertikales Scrollen */}
                 <ScrollView contentContainerStyle={styles.cardsContainer}>
                     <View style={styles.infoCard}>
                         <Text style={styles.cardTitle}>Gerätesteuerung</Text>
@@ -62,30 +59,6 @@ export default function HomeScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    {/* <View style={styles.infoCard}>
-                        <Text style={styles.cardTitle}>Einstellungen</Text>
-                        <Text style={styles.cardDescription}>
-                            Passe deine Smart Home Einstellungen individuell nach deinen Wünschen an.
-                        </Text>
-                        <TouchableOpacity
-                            style={[styles.navButton, { backgroundColor: colors.primary }]}
-                            onPress={() => navigation.navigate("Einstellungen")}
-                        >
-                            <Icon name="cog" size={20} color="#fff" />
-                            <Text style={styles.buttonText}></Text>
-                        </TouchableOpacity>
-                    </View> */}
-
-                    {/* <View style={styles.infoCard}>
-                        <Text style={styles.cardTitle}>Energieverbrauch</Text>
-                        <Text style={styles.cardDescription}>
-                            Aktueller Stromverbrauch:
-                        </Text>
-                        <Text style={styles.consumptionText}>
-                            {currentConsumption.toFixed(2)} kWh
-                        </Text>
-                    </View> */}
-
                     <View style={styles.infoCard}>
                         <Text style={styles.cardTitle}>Energiespartipps</Text>
                         <Text style={styles.cardDescription}>
@@ -94,7 +67,6 @@ export default function HomeScreen() {
                         <TouchableOpacity
                             style={[styles.navButton, { backgroundColor: colors.primary }]}
                             onPress={() => navigation.navigate("Tipps")}
-
                         >
                             <Icon name="lightbulb-on-outline" size={20} color="#fff" />
                             <Text style={styles.buttonText}></Text>
@@ -114,9 +86,12 @@ export default function HomeScreen() {
                             <Text style={styles.buttonText}></Text>
                         </TouchableOpacity>
                     </View>
+
                     <View style={styles.infoCard}>
                         <Text style={styles.cardTitle}>Erinnerungen</Text>
-                        <Text style={styles.cardDescription}>Plane Erinnerungen zum Ein-/Ausschalten deiner Geräte.</Text>
+                        <Text style={styles.cardDescription}>
+                            Plane Erinnerungen zum Ein-/Ausschalten deiner Geräte.
+                        </Text>
                         <TouchableOpacity
                             style={[styles.navButton, { backgroundColor: colors.primary }]}
                             onPress={() => navigation.navigate("Erinnerungen")}
@@ -135,28 +110,42 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.sand,
-        paddingTop: 50,
+        paddingTop: 20,
     },
     topBar: {
-        flexDirection: "row",
-        justifyContent: "space-between",
+        position: "relative",
+        height: 105,
+        justifyContent: "center",
         alignItems: "center",
-        paddingHorizontal: 20,
+        marginBottom: 10,
+    },
+    logoContainer: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        justifyContent: "center",
+        alignItems: "center",
     },
     logo: {
-        width: 105,
-        height: 105,
+        width: 100,
+        height: 100,
         resizeMode: "contain",
     },
     logoutButton: {
+        position: "absolute",
+        right: 20,
+        top: 40,
         backgroundColor: colors.primary,
         padding: 10,
         borderRadius: 8,
+        zIndex: 1,
     },
     content: {
         alignItems: "center",
         paddingHorizontal: 20,
-        marginTop: 20,
+        marginTop: 5,
         width: "100%",
         flex: 1,
     },
@@ -188,7 +177,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 3,
-        width: "30%",  // drei nebeneinander
+        width: "30%",
     },
     statusText: {
         marginTop: 10,
@@ -196,7 +185,6 @@ const styles = StyleSheet.create({
         color: colors.steel,
         textAlign: "center",
     },
-
     cardsContainer: {
         width: "100%",
         flexDirection: "row",
@@ -217,7 +205,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         justifyContent: "space-between",
         minHeight: 150,
-        width: Platform.OS === "web" ? "48%" : "48%", // zwei Cards nebeneinander
+        width: Platform.OS === "web" ? "48%" : "48%",
     },
     cardTitle: {
         fontSize: 14,

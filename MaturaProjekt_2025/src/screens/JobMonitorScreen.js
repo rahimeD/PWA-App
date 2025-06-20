@@ -1,134 +1,88 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     View,
     Text,
-    FlatList,
     StyleSheet,
     Dimensions,
     ScrollView,
 } from "react-native";
-import axios from "axios";
 import { LineChart } from "react-native-chart-kit";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import colors from "../constants/colors";
 
 export default function JobMonitorScreen() {
-    const [jobs, setJobs] = useState([]);
-    const [chartData, setChartData] = useState(null);
     const [screenWidth, setScreenWidth] = useState(Dimensions.get("window").width);
-
-    const possibleDevices = [
-        { id: "1", name: "Waschmaschine", icon: "washing-machine" },
-        { id: "2", name: "Geschirrspüler", icon: "dishwasher" },
-        { id: "3", name: "Heizung", icon: "radiator" },
-        { id: "4", name: "Klimaanlage", icon: "air-conditioner" },
-        { id: "5", name: "Fernseher", icon: "television" },
-        { id: "6", name: "Licht", icon: "lightbulb-outline" },
-    ];
 
     useEffect(() => {
         const subscription = Dimensions.addEventListener("change", ({ window }) => {
             setScreenWidth(window.width);
         });
-        // 192.168.0.18
-        axios
-            .get("http://192.168.0.18:3000/jobs")
-            .then((res) => {
-                setJobs(res.data);
-                setChartData({
-                    labels: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
-                    datasets: [
-                        {
-                            data: [30, 35, 32, 40, 45, 38, 36],
-                            strokeWidth: 2,
-                        },
-                    ],
-                });
-            })
-            .catch((err) => console.error(err));
-
         return () => subscription?.remove();
     }, []);
 
-    const isLargeScreen = screenWidth > 800;
-    const iconSize = isLargeScreen ? 40 : 60; // icon-Größe (kann angepasst werden)
+    const chartData = useMemo(() => ({
+        labels: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+        datasets: [
+            {
+                data: [5.2, 4.8, 6.1, 5.5, 6.3, 7.0, 5.9],
+                strokeWidth: 2,
+            },
+        ],
+    }), []);
 
-    const renderJob = ({ item }) => (
-        <View style={[styles.jobCard, { width: isLargeScreen ? "48%" : "100%" }]}>
-            <Text style={styles.jobTitle}>{item.device_name}</Text>
-            <Text>Start: {item.start_time}</Text>
-            <Text>Verbrauch: {item.consumption_kwh} kWh</Text>
-        </View>
-    );
+    const deviceData = [
+        { label: "Heizung", value: 32 },
+        { label: "Waschmaschine", value: 21 },
+        { label: "Kühlschrank", value: 17 },
+    ];
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <FlatList
-                data={jobs}
-                renderItem={renderJob}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEnabled={false}
-                numColumns={isLargeScreen ? 2 : 1}
-                columnWrapperStyle={isLargeScreen && { justifyContent: "space-between" }}
-                style={{ width: "100%" }}
-                ListEmptyComponent={<Text style={styles.noJobs}>Keine Jobs verfügbar</Text>}
-            />
+            <Text style={styles.header}>Stromverbrauch</Text>
 
-            <Text style={styles.header}>Mögliche Geräte</Text>
+            <View style={styles.infoBox}>
+                <Text style={styles.infoTitle}>Verbrauch diese Woche</Text>
+                <Text style={styles.averageText}>
+                    Dein täglicher Stromverbrauch liegt bei <Text style={styles.highlight}>ø 5.8 kWh</Text>.
+                </Text>
 
-            <View style={styles.deviceGrid}>
-                {possibleDevices.map((device) => (
-                    <View
-                        key={device.id}
-                        style={[
-                            styles.deviceCard,
-                            {
-                                width: iconSize,
-                                height: iconSize,
-                                padding: 0,
-                                marginBottom: 12,
-                            },
-                        ]}
-                    >
-                        <Icon
-                            name={device.icon}
-                            size={iconSize}
-                            color={colors.primary}
-                        />
-                    </View>
-                ))}
+                <Text style={styles.breakdown}>
+                    Anteilsmäßig entfällt der größte Verbrauch auf{" "}
+                    {deviceData.map((item, index) => (
+                        <Text key={index}>
+                            {index > 0 && ", "}
+                            {item.label} ({item.value} %)
+                        </Text>
+                    ))}.
+                </Text>
+
+                <Text style={styles.tip}>
+                    Tipp: Achte auf Geräte mit Dauerbetrieb – sie sind oft versteckte Stromfresser.
+                </Text>
             </View>
 
-            {chartData && (
-                <>
-                    <Text style={styles.header}>📈 Strompreis-Prognose (€/kWh)</Text>
-                    <LineChart
-                        data={chartData}
-                        width={screenWidth - 32}
-                        height={220}
-                        chartConfig={{
-                            backgroundColor: colors.white,
-                            backgroundGradientFrom: colors.white,
-                            backgroundGradientTo: colors.white,
-                            decimalPlaces: 2,
-                            color: (opacity = 1) => `rgba(238, 122, 46, ${opacity})`,
-                            labelColor: () => colors.steel,
-                            style: {
-                                borderRadius: 16,
-                            },
-                            propsForDots: {
-                                r: "5",
-                                strokeWidth: "2",
-                                stroke: "#EE7A2E",
-                            },
-                        }}
-                        style={{
-                            borderRadius: 16,
-                            marginBottom: 20,
-                        }}
-                    />
-                </>
-            )}
+            <Text style={styles.subheader}>Täglicher Verlauf</Text>
+            <LineChart
+                data={chartData}
+                width={screenWidth - 32}
+                height={220}
+                chartConfig={{
+                    backgroundColor: colors.white,
+                    backgroundGradientFrom: colors.white,
+                    backgroundGradientTo: colors.white,
+                    decimalPlaces: 1,
+                    color: (opacity = 1) => `rgba(238, 122, 46, ${opacity})`,
+                    labelColor: () => colors.steel,
+                    propsForDots: {
+                        r: "4",
+                        strokeWidth: "1.5",
+                        stroke: "#EE7A2E",
+                    },
+                    propsForBackgroundLines: {
+                        strokeDasharray: "", // Solid lines
+                    },
+                }}
+                style={styles.chart}
+            />
         </ScrollView>
     );
 }
@@ -143,50 +97,57 @@ const styles = StyleSheet.create({
     header: {
         fontSize: 22,
         fontWeight: "700",
-        marginVertical: 18,
+        marginBottom: 12,
         color: colors.primary,
         alignSelf: "flex-start",
     },
-    jobCard: {
-        backgroundColor: colors.white,
-        padding: 16,
-        marginBottom: 14,
-        borderRadius: 14,
-        elevation: 3,
-        shadowColor: colors.obsidian,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-    },
-    jobTitle: {
-        fontWeight: "700",
+    subheader: {
         fontSize: 18,
-        marginBottom: 6,
-        color: colors.steel,
+        fontWeight: "600",
+        marginVertical: 12,
+        color: colors.orchid,
+        alignSelf: "flex-start",
     },
-    noJobs: {
-        textAlign: "center",
-        marginVertical: 20,
-        fontSize: 16,
-        color: colors.steel,
-    },
-    deviceGrid: {
+    infoBox: {
         width: "100%",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "flex-start", // Icons am Anfang ausrichten
-        gap: 12, // moderner Abstand, wird aber nicht von allen RN-Versionen unterstützt
-        marginBottom: 24,
-    },
-    deviceCard: {
-        backgroundColor: colors.background,
-        borderRadius: 8,
-        alignItems: "center",
-        justifyContent: "center",
-        shadowColor: colors.obsidian,
-        shadowOffset: { width: 0, height: 1 },
+        backgroundColor: colors.white,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 6,
-        elevation: 4,
+        elevation: 3,
+    },
+    infoTitle: {
+        fontSize: 16,
+        fontWeight: "600",
+        marginBottom: 6,
+        color: colors.primary,
+    },
+    averageText: {
+        fontSize: 14,
+        marginBottom: 8,
+        color: colors.steel,
+    },
+    highlight: {
+        fontWeight: "700",
+        color: colors.orchid,
+    },
+    breakdown: {
+        fontSize: 13,
+        color: colors.steel,
+        marginBottom: 12,
+        lineHeight: 18,
+    },
+    tip: {
+        fontSize: 13,
+        color: colors.primary,
+        fontStyle: "italic",
+    },
+    chart: {
+        borderRadius: 16,
+        marginBottom: 20,
     },
 });

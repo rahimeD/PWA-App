@@ -23,7 +23,7 @@ export default function LoginScreen() {
         console.log("handleLogin wurde ausgelöst");  // Kontrollausgabe 192.168.0.18
         try {
             console.log("Super gemacht");
-            const res = await axios.post("http://192.168.0.18:3000/login", {
+            const res = await axios.post("http://10.12.100.73:3000/login", {
                 username,
                 password
             });
@@ -98,8 +98,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     logo: {
-        width: 80,
-        height: 80,
+        width: 95,
+        height: 95,
         resizeMode: "contain",
         marginBottom: 15,
     },

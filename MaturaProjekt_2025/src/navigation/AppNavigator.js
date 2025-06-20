@@ -101,7 +101,7 @@ export default function AppNavigator() {
 const styles = StyleSheet.create({
     chatBoxPosition: {
         position: "absolute",
-        bottom: Platform.OS === "web" ? 800 : 25,
+        bottom: Platform.OS === "web" ? 150 : 70,
         right: Platform.OS === "web" ? 30 : 12,
         zIndex: 999,
         transform: [{ scale: Platform.OS === "web" ? 1 : 0.65 }],
