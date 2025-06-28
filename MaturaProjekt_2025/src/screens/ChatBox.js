@@ -5,11 +5,10 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
-    Platform,
-    KeyboardAvoidingView,
     ScrollView,
+    Platform,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import ChatbotIcon from "../../assets/icons/chatbot.svg";
 import colors from "../constants/colors";
 
 export default function ChatBox() {
@@ -22,9 +21,7 @@ export default function ChatBox() {
     ]);
     const [input, setInput] = useState("");
 
-    const toggleChat = () => {
-        setOpen(!open);
-    };
+    const toggleChat = () => setOpen(!open);
 
     const handleSend = () => {
         if (!input.trim()) return;
@@ -40,28 +37,26 @@ export default function ChatBox() {
     };
 
     return (
-        <View style={styles.chatContainer}>
+        <View style={styles.chatContainer} pointerEvents="box-none">
             {open && (
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    style={styles.chatBox}
-                >
+                <View style={styles.chatBox}>
                     <View style={styles.chatHeader}>
                         <Text style={styles.headerText}>🤖 Savergy-Chat</Text>
                         <TouchableOpacity onPress={toggleChat}>
-                            <Icon name="close" size={20} color="#fff" />
+                            <Text style={{ color: "#fff", fontSize: 20 }}>×</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView style={styles.chatMessages}>
+                    <ScrollView
+                        contentContainerStyle={styles.chatMessages}
+                        showsVerticalScrollIndicator={false}
+                    >
                         {messages.map((msg, index) => (
                             <View
                                 key={index}
                                 style={[
                                     styles.message,
-                                    msg.from === "user"
-                                        ? styles.userMessage
-                                        : styles.botMessage,
+                                    msg.from === "user" ? styles.userMessage : styles.botMessage,
                                 ]}
                             >
                                 <Text style={styles.messageText}>{msg.text}</Text>
@@ -77,15 +72,14 @@ export default function ChatBox() {
                             placeholder="Nachricht schreiben..."
                         />
                         <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-                            <Icon name="send" size={20} color="#fff" />
+                            <Text style={{ color: "#fff", fontSize: 18 }}>➤</Text>
                         </TouchableOpacity>
                     </View>
-                </KeyboardAvoidingView>
+                </View>
             )}
 
-            {/* Kompakter runder Button mit Icon */}
             <TouchableOpacity style={styles.iconButton} onPress={toggleChat}>
-                <Icon name="robot-happy-outline" size={26} color="#fff" />
+                <ChatbotIcon width={26} height={26} fill="#fff" />
             </TouchableOpacity>
         </View>
     );
@@ -94,8 +88,12 @@ export default function ChatBox() {
 const styles = StyleSheet.create({
     chatContainer: {
         position: "absolute",
-        maxWidth: "80%",
-        width: 300,
+        maxWidth: 300,
+        width: "80%",
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        alignItems: "flex-end",
     },
     iconButton: {
         backgroundColor: colors.orchid,
@@ -106,7 +104,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 5,
         elevation: 5,
-        alignSelf: "flex-end",
+        marginBottom: 10,
     },
     chatBox: {
         backgroundColor: "#fff",
@@ -118,7 +116,8 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 5,
         elevation: 4,
-        maxHeight: Platform.OS === "web" ? 300 : 220, // <--- kleiner auf Handy
+        maxHeight: 320,
+        width: 300,
     },
     chatHeader: {
         flexDirection: "row",
@@ -136,6 +135,7 @@ const styles = StyleSheet.create({
     chatMessages: {
         paddingHorizontal: 10,
         paddingVertical: 5,
+        flexGrow: 1,
     },
     message: {
         padding: 8,
@@ -177,5 +177,7 @@ const styles = StyleSheet.create({
         padding: 8,
         borderRadius: 20,
         marginLeft: 8,
+        justifyContent: "center",
+        alignItems: "center",
     },
 });

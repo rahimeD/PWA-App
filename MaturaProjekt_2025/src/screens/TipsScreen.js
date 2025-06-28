@@ -8,43 +8,42 @@ import {
     TextInput,
     TouchableOpacity
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import colors from "../constants/colors"; // Pfad anpassen, falls nötig
 
 const allTips = [
     {
-        icon: "lightbulb-on-outline",
+
         title: "LED statt Glühbirne",
         description: "Wechsle zu LED-Lampen – sie verbrauchen bis zu 80% weniger Strom.",
         category: "Beleuchtung",
     },
     {
-        icon: "thermometer-lines",
+
         title: "Heizung richtig steuern",
         description: "Nutze smarte Thermostate für effizientere Heizzyklen.",
         category: "Heizung",
     },
     {
-        icon: "calendar-clock",
+
         title: "Zeitpläne nutzen",
         description: "Plane Geräte-Nutzung zu Niedrigtarifzeiten.",
         category: "Zeitmanagement",
     },
     {
-        icon: "power-plug-off",
+
         title: "Geräte ausschalten",
         description: "Ziehe ungenutzte Geräte vom Strom oder verwende smarte Stecker.",
         category: "Energie sparen",
     },
     // Beispiel für Erweiterung
     {
-        icon: "shield-home-outline",
+
         title: "Sicherheit erhöhen",
         description: "Installiere smarte Sensoren für Fenster und Türen.",
         category: "Sicherheit",
     },
     {
-        icon: "water-percent",
+
         title: "Wasserverbrauch reduzieren",
         description: "Nutze smarte Wassersensoren zur Leckage-Erkennung.",
         category: "Umwelt",
@@ -76,7 +75,7 @@ export default function TipsScreen() {
 
     return (
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-            <Text style={styles.header}>💡 Smart-Tipps für dein Zuhause</Text>
+            <Text style={styles.header}>Smart-Tipps für dein Zuhause</Text>
             <Text style={styles.subHeader}>
                 {filteredTips.length} Tipp{filteredTips.length !== 1 ? "s" : ""} gefunden
             </Text>
@@ -115,7 +114,6 @@ export default function TipsScreen() {
                 {filteredTips.length > 0 ? (
                     filteredTips.map((tip, index) => (
                         <View key={index} style={styles.card}>
-                            <Icon name={tip.icon} size={32} color={colors.primary} />
                             <View style={styles.textBlock}>
                                 <Text style={styles.title}>{tip.title}</Text>
                                 <Text style={styles.description}>{tip.description}</Text>

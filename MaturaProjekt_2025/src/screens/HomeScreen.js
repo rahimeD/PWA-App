@@ -1,9 +1,26 @@
 import React, { useContext } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, Platform, ScrollView } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import {
+    View,
+    Text,
+    Image,
+    StyleSheet,
+    TouchableOpacity,
+    Platform,
+    ScrollView,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { DeviceContext } from "../context/DeviceProvider";
 import colors from "../constants/colors";
+
+// SVG Imports
+import BrightnessIcon from "../../assets/icons/brightness.svg";
+import DoorClosedIcon from "../../assets/icons/door-closed.svg";
+import ClimateIcon from "../../assets/icons/climate.svg";
+import DeviceSettingsIcon from "../../assets/icons/settings-sliders.svg";
+import BulbSpeechIcon from "../../assets/icons/bulb-speech-bubble.svg";
+import PrognosIcon from "../../assets/icons/prognose.svg";
+import LogoutIcon from "../../assets/icons/leave_.svg";
+import AlarmClockIcon from "../../assets/icons/alarm-clock.svg";
 
 export default function HomeScreen() {
     const navigation = useNavigation();
@@ -18,10 +35,16 @@ export default function HomeScreen() {
         <View style={styles.container}>
             <View style={styles.topBar}>
                 <View style={styles.logoContainer}>
-                    <Image source={require("../../assets/logo/logo.svg")} style={styles.logo} />
+                    <Image
+                        source={require("../../assets/logo/PrimäresLogo.webp")}
+                        style={styles.logo}
+                    />
                 </View>
-                <TouchableOpacity onPress={() => navigation.replace("Login")} style={styles.logoutButton}>
-                    <Icon name="logout" size={24} color="#fff" />
+                <TouchableOpacity
+                    onPress={() => navigation.replace("Login")}
+                    style={styles.logoutButton}
+                >
+                    <LogoutIcon width={24} height={24} />
                 </TouchableOpacity>
             </View>
 
@@ -31,15 +54,15 @@ export default function HomeScreen() {
 
                 <View style={styles.statusSection}>
                     <View style={styles.statusCard}>
-                        <Icon name="lightbulb-outline" size={32} color="#FFD700" />
+                        <BrightnessIcon width={32} height={32} />
                         <Text style={styles.statusText}>Lichter: {lightStatus}</Text>
                     </View>
                     <View style={styles.statusCard}>
-                        <Icon name="door" size={32} color={colors.steel} />
+                        <DoorClosedIcon width={32} height={32} />
                         <Text style={styles.statusText}>Türen: {doorStatus}</Text>
                     </View>
                     <View style={styles.statusCard}>
-                        <Icon name="air-conditioner" size={32} color={colors.orchid} />
+                        <ClimateIcon width={32} height={32} />
                         <Text style={styles.statusText}>Klima: {airStatus}</Text>
                     </View>
                 </View>
@@ -54,8 +77,7 @@ export default function HomeScreen() {
                             style={[styles.navButton, { backgroundColor: colors.primary }]}
                             onPress={() => navigation.navigate("Control")}
                         >
-                            <Icon name="remote" size={20} color="#fff" />
-                            <Text style={styles.buttonText}></Text>
+                            <DeviceSettingsIcon width={20} height={20} />
                         </TouchableOpacity>
                     </View>
 
@@ -68,8 +90,7 @@ export default function HomeScreen() {
                             style={[styles.navButton, { backgroundColor: colors.primary }]}
                             onPress={() => navigation.navigate("Tipps")}
                         >
-                            <Icon name="lightbulb-on-outline" size={20} color="#fff" />
-                            <Text style={styles.buttonText}></Text>
+                            <BulbSpeechIcon width={20} height={20} />
                         </TouchableOpacity>
                     </View>
 
@@ -82,8 +103,7 @@ export default function HomeScreen() {
                             style={[styles.navButton, { backgroundColor: colors.primary }]}
                             onPress={() => navigation.navigate("Prognose")}
                         >
-                            <Icon name="chart-line" size={20} color="#fff" />
-                            <Text style={styles.buttonText}></Text>
+                            <PrognosIcon width={20} height={20} />
                         </TouchableOpacity>
                     </View>
 
@@ -96,8 +116,7 @@ export default function HomeScreen() {
                             style={[styles.navButton, { backgroundColor: colors.primary }]}
                             onPress={() => navigation.navigate("Erinnerungen")}
                         >
-                            <Icon name="alarm" size={20} color="#fff" />
-                            <Text style={styles.buttonText}></Text>
+                            <AlarmClockIcon width={20} height={20} />
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -110,14 +129,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.sand,
-        paddingTop: 20,
+        paddingTop: Platform.OS === "ios" ? 40 : 20, // weniger Abstand oben
     },
     topBar: {
         position: "relative",
-        height: 105,
+        height: 80, // reduziert von 105
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: 10,
+        marginBottom: 5,
     },
     logoContainer: {
         position: "absolute",
@@ -129,14 +148,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     logo: {
-        width: 100,
-        height: 100,
+        width: 160, // reduziert von 200
+        height: 160, // reduziert von 200
         resizeMode: "contain",
     },
     logoutButton: {
         position: "absolute",
         right: 20,
-        top: 40,
+        top: 20, // reduziert von 40
         backgroundColor: colors.primary,
         padding: 10,
         borderRadius: 8,
@@ -219,12 +238,6 @@ const styles = StyleSheet.create({
         color: colors.steel,
         textAlign: "center",
         marginBottom: 10,
-    },
-    consumptionText: {
-        fontSize: 22,
-        fontWeight: "bold",
-        color: colors.orchid,
-        textAlign: "center",
     },
     navButton: {
         flexDirection: "row",

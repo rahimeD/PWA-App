@@ -11,7 +11,7 @@ export default function SettingsScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>⚙️ Einstellungen</Text>
+            <Text style={styles.title}>Einstellungen</Text>
             <Text style={styles.subtitle}>Passe dein Smart Home an deine individuellen Bedürfnisse an.</Text>
 
             <View style={styles.card}>
@@ -57,7 +57,7 @@ export default function SettingsScreen() {
             </View>
 
             <View style={styles.card}>
-                <Text style={styles.optionTitle}>Steuerungsmodus 🔁</Text>
+                <Text style={styles.optionTitle}>Steuerungsmodus</Text>
                 <Text style={styles.optionDescription}>
                     Entscheide, ob dein Smart Home manuell oder automatisch gesteuert wird.
                 </Text>

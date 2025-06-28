@@ -4,7 +4,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -17,44 +16,39 @@ import JobMonitorScreen from "../screens/JobMonitorScreen";
 import TipsScreen from "../screens/TipsScreen";
 import ReminderScreen from "../screens/ReminderScreen";
 
+import HouseChimneyIcon from "../../assets/icons/house-chimney.svg";
+import RemoteControlIcon from "../../assets/icons/remote-control.svg";
+import PrognoseIcon from "../../assets/icons/prognose.svg";
+import SettingsIcon from "../../assets/icons/settings.svg";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+function SvgIcon({ IconComponent, color, size }) {
+    return <IconComponent width={size} height={size} fill={color} />;
+}
 
 function MainTabs() {
     return (
         <View style={{ flex: 1 }}>
             <Tab.Navigator
                 screenOptions={({ route }) => ({
-                    tabBarIcon: ({ color }) => {
-                        let iconName;
-
+                    tabBarIcon: ({ color, size }) => {
                         switch (route.name) {
                             case "Home":
-                                iconName = "home-outline";
-                                break;
+                                return <SvgIcon IconComponent={HouseChimneyIcon} color={color} size={size} />;
                             case "Control":
-                                iconName = "remote";
-                                break;
+                                return <SvgIcon IconComponent={RemoteControlIcon} color={color} size={size} />;
                             case "Status":
-                                iconName = "chart-bar";
-                                break;
+                                return <SvgIcon IconComponent={PrognoseIcon} color={color} size={size} />;
                             case "Einstellungen":
-                                iconName = "cog-outline";
-                                break;
+                                return <SvgIcon IconComponent={SettingsIcon} color={color} size={size} />;
                             default:
-                                iconName = "circle";
+                                return null;
                         }
-
-                        return (
-                            <Icon
-                                name={iconName}
-                                size={Platform.OS === "web" ? 30 : 24}
-                                color={color}
-                            />
-                        );
                     },
                     tabBarActiveTintColor: "#F57C00",
-                    tabBarInactiveTintColor: "gray",
+                    tabBarInactiveTintColor: "black",
                     headerShown: false,
                     tabBarStyle: {
                         height: Platform.OS === "web" ? 90 : 65,
@@ -72,7 +66,7 @@ function MainTabs() {
                 <Tab.Screen name="Einstellungen" component={SettingsScreen} />
             </Tab.Navigator>
 
-            {/* Floating ChatBox sauber platziert */}
+            {/* Floating ChatBox Overlay */}
             <View style={styles.chatBoxPosition}>
                 <ChatBox />
             </View>
@@ -101,9 +95,10 @@ export default function AppNavigator() {
 const styles = StyleSheet.create({
     chatBoxPosition: {
         position: "absolute",
-        bottom: Platform.OS === "web" ? 150 : 70,
-        right: Platform.OS === "web" ? 30 : 12,
+        bottom: Platform.OS === "web" ? 80 : 30,
+        right: Platform.OS === "web" ? 10 : 70,
         zIndex: 999,
         transform: [{ scale: Platform.OS === "web" ? 1 : 0.65 }],
+        alignItems: "center",
     },
 });

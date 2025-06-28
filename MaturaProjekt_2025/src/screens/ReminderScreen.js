@@ -127,7 +127,7 @@ export default function ReminderScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>🔔 Erinnerung erstellen</Text>
+            <Text style={styles.title}>Erinnerung erstellen</Text>
 
             <TextInput
                 style={styles.input}
@@ -148,7 +148,7 @@ export default function ReminderScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.button, styles.addButton]} onPress={addReminder}>
-                <Text style={styles.buttonText}>➕ Erinnerung hinzufügen</Text>
+                <Text style={styles.buttonText}>Erinnerung hinzufügen</Text>
             </TouchableOpacity>
 
             <FlatList

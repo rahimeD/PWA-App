@@ -5,8 +5,8 @@ import colors from "../constants/colors";
 import axios from "axios";
 
 export default function LoginScreen() {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState("admin");
+    const [password, setPassword] = useState("123456");
     const navigation = useNavigation();
 
     // const handleLogin = () => {
@@ -23,7 +23,7 @@ export default function LoginScreen() {
         console.log("handleLogin wurde ausgelöst");  // Kontrollausgabe 192.168.0.18
         try {
             console.log("Super gemacht");
-            const res = await axios.post("http://10.12.100.73:3000/login", {
+            const res = await axios.post("http://192.168.0.18:3000/login", {
                 username,
                 password
             });
@@ -83,7 +83,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: colors.sand,
-        padding: 20,
     },
     card: {
         width: Platform.OS === "web" ? 400 : "85%",
@@ -98,16 +97,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     logo: {
-        width: 95,
-        height: 95,
+        width: 100,
+        height: 100,
         resizeMode: "contain",
-        marginBottom: 15,
     },
     title: {
         fontSize: 24,
         fontWeight: "bold",
         color: colors.orchid,
-        marginBottom: 5,
     },
     subtitle: {
         fontSize: 16,
