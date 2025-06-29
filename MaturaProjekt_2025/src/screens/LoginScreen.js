@@ -9,39 +9,22 @@ export default function LoginScreen() {
     const [password, setPassword] = useState("123456");
     const navigation = useNavigation();
 
-    // const handleLogin = () => {
-    //     if (username === "admin" && password === "123456") {
-    //         navigation.replace("Main"); // WICHTIG: "replace" verhindert zurückgehen zum Login
-    //     } else {
-    //         alert("Falsche Anmeldeinformationen!");
-    //     }
-    // };
-    // npm install axios
-
-
     const handleLogin = async () => {
-        console.log("handleLogin wurde ausgelöst");  // Kontrollausgabe 192.168.0.18
         try {
-            console.log("Super gemacht");
-            const res = await axios.post("http://192.168.0.18:3000/login", {
-                username,
-                password
-            });
-            console.log("API Response:", res.data);
-
+            const res = await axios.post("http://192.168.0.18:3000/login", { username, password });
             if (res.data.success) {
-                console.log("Login erfolgreich, navigiere zu Main");
                 navigation.navigate("Main");
             } else {
                 alert(res.data.message || "Login fehlgeschlagen");
             }
         } catch (error) {
-            console.error(error.response ? error.response.data : error.message);
             alert("Fehler bei der Anmeldung. Server nicht erreichbar.");
         }
     };
 
-
+    const handleRegister = () => {
+        navigation.navigate("Register");
+    };
 
     return (
         <View style={styles.container}>
@@ -55,6 +38,7 @@ export default function LoginScreen() {
                     placeholder="Benutzername"
                     value={username}
                     onChangeText={setUsername}
+                    autoCapitalize="none"
                     keyboardType="default"
                 />
                 <TextInput
@@ -69,6 +53,10 @@ export default function LoginScreen() {
                     <Text style={styles.buttonText}>Einloggen</Text>
                 </TouchableOpacity>
 
+                <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                    <Text style={styles.registerText}>Jetzt registrieren</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity style={styles.forgotButton}>
                     <Text style={styles.forgotText}>Passwort vergessen?</Text>
                 </TouchableOpacity>
@@ -80,14 +68,13 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
         backgroundColor: colors.sand,
+        justifyContent: "center",
+        paddingHorizontal: 20, // Abstand links und rechts zum Bildschirm
     },
     card: {
-        width: Platform.OS === "web" ? 400 : "85%",
         backgroundColor: colors.white,
-        padding: 20,
+        padding: 30,
         borderRadius: 12,
         shadowColor: "#000",
         shadowOpacity: 0.1,
@@ -100,16 +87,19 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         resizeMode: "contain",
+        marginBottom: 15,
     },
     title: {
         fontSize: 24,
         fontWeight: "bold",
         color: colors.orchid,
+        marginBottom: 5,
     },
     subtitle: {
         fontSize: 16,
         color: colors.steel,
-        marginBottom: 20,
+        marginBottom: 25,
+        textAlign: "center",
     },
     input: {
         width: "100%",
@@ -122,19 +112,30 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: colors.orchid,
-        padding: 12,
+        padding: 15,
         borderRadius: 8,
         width: "100%",
         alignItems: "center",
-        marginTop: 10,
+        marginTop: 5,
     },
     buttonText: {
         color: colors.white,
         fontSize: 16,
         fontWeight: "bold",
     },
-    forgotButton: {
+    registerButton: {
         marginTop: 15,
+        width: "100%",
+        alignItems: "center",
+    },
+    registerText: {
+        color: colors.orchid,
+        fontSize: 16,
+        fontWeight: "600",
+        textDecorationLine: "underline",
+    },
+    forgotButton: {
+        marginTop: 20,
     },
     forgotText: {
         fontSize: 14,
