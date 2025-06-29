@@ -59,19 +59,18 @@ export default function ControlScreen() {
                 style={styles.statusButton}
                 onPress={() => navigation.navigate("Status")}
             >
-                <Text style={styles.statusText}>📊 Gerätestatus anzeigen</Text>
+                <Text style={styles.statusText}>Gerätestatus anzeigen</Text>
             </TouchableOpacity>
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#F5A35B", // Ein sanfter Orangeton
+        backgroundColor: colors.sand,
         padding: 20,
     },
     title: {

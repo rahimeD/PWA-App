@@ -1,29 +1,37 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Switch } from "react-native";
+import { View, Text, StyleSheet, Switch, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-// import { useNavigation } from "@react-navigation/native";
 
 export default function SettingsScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [language, setLanguage] = useState("de");
-    const [theme, setTheme] = useState("light"); // Hell oder Dunkel
-    const [controlMode, setControlMode] = useState("manual"); // Manuell oder Automatisch
+    const [theme, setTheme] = useState("light");
+    const [controlMode, setControlMode] = useState("manual");
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Einstellungen</Text>
-            <Text style={styles.subtitle}>Passe dein Smart Home an deine individuellen Bedürfnisse an.</Text>
+            <Text style={styles.subtitle}>
+                Passe dein Smart Home an deine individuellen Bedürfnisse an.
+            </Text>
 
             <View style={styles.card}>
                 <Text style={styles.optionTitle}>Benachrichtigungen</Text>
                 <Text style={styles.optionDescription}>
-                    Aktiviere oder deaktiviere Benachrichtigungen, um immer auf dem neuesten Stand zu bleiben.
+                    Aktiviere oder deaktiviere Benachrichtigungen, um immer auf dem neuesten
+                    Stand zu bleiben.
                 </Text>
                 <Switch
                     value={notificationsEnabled}
                     onValueChange={setNotificationsEnabled}
                     style={styles.switch}
                 />
+                <Text>
+                    Notifications:{" "}
+                    <Text style={{ color: "#EE7A2E" }}>
+                        {notificationsEnabled ? "Ein" : "Aus"}
+                    </Text>
+                </Text>
             </View>
 
             <View style={styles.card}>
@@ -33,12 +41,14 @@ export default function SettingsScreen() {
                 </Text>
                 <Picker
                     selectedValue={language}
-                    style={styles.picker}
                     onValueChange={(itemValue) => setLanguage(itemValue)}
+                    style={styles.picker}
+                    mode="dropdown" // wichtig für Android
                 >
                     <Picker.Item label="Deutsch" value="de" />
                     <Picker.Item label="Englisch" value="en" />
                 </Picker>
+                <Text>Sprache: {language}</Text>
             </View>
 
             <View style={styles.card}>
@@ -48,12 +58,14 @@ export default function SettingsScreen() {
                 </Text>
                 <Picker
                     selectedValue={theme}
-                    style={styles.picker}
                     onValueChange={(itemValue) => setTheme(itemValue)}
+                    style={styles.picker}
+                    mode="dropdown"
                 >
                     <Picker.Item label="Hell" value="light" />
                     <Picker.Item label="Dunkel" value="dark" />
                 </Picker>
+                <Text>Theme: {theme}</Text>
             </View>
 
             <View style={styles.card}>
@@ -63,24 +75,26 @@ export default function SettingsScreen() {
                 </Text>
                 <Picker
                     selectedValue={controlMode}
-                    style={styles.picker}
                     onValueChange={(itemValue) => setControlMode(itemValue)}
+                    style={styles.picker}
+                    mode="dropdown"
                 >
                     <Picker.Item label="Manuell" value="manual" />
                     <Picker.Item label="Automatisch" value="automatic" />
                 </Picker>
+                <Text>Steuerung: {controlMode}</Text>
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 20,
         backgroundColor: "#ECEFF1",
         justifyContent: "flex-start",
-        alignItems: "center",
+        alignItems: "stretch",
+        flexGrow: 1, // damit ScrollView den gesamten Bereich nutzt
     },
     title: {
         fontSize: 26,
@@ -106,6 +120,7 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 3,
         marginBottom: 15,
+        alignSelf: "center", // damit cards zentriert bleiben
     },
     optionTitle: {
         fontSize: 18,
@@ -127,6 +142,5 @@ const styles = StyleSheet.create({
         width: "100%",
         backgroundColor: "#F5F5F5",
         borderRadius: 6,
-        paddingLeft: 10,
     },
 });

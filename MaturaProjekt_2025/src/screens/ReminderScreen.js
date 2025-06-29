@@ -122,7 +122,7 @@ export default function ReminderScreen() {
         setManualDate("");
         setManualTime("");
 
-        Alert.alert("✅ Erinnerung gespeichert", "Die Erinnerung wurde erfolgreich hinzugefügt.");
+        Alert.alert("Erinnerung gespeichert", "Die Erinnerung wurde erfolgreich hinzugefügt.");
     };
 
     return (
