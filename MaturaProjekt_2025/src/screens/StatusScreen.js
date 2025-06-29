@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, ScrollView } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { DeviceContext } from "../context/DeviceProvider";
 import colors from "../constants/colors";
@@ -9,111 +9,142 @@ const screenWidth = Dimensions.get("window").width;
 export default function StatusScreen() {
     const { deviceStatus } = useContext(DeviceContext);
 
-    const data = {
-        labels: ["Licht", "Heizung", "Klimaanlage", "Fernseher", "Tür"],
+    const chartData = {
+        labels: ["Licht", "Heizung", "Klima", "TV", "Tür"],
         datasets: [
             {
                 data: [
-                    deviceStatus.lightConsumption || 0,           // Verbrauch in Watt
-                    deviceStatus.heaterTemperature || 0,          // Temperatur in °C
-                    deviceStatus.airConditionerCoolingLevel || 0, // Kühlstufe 0-100%
-                    deviceStatus.tvVolume || 0,                    // Lautstärke 0-100%
-                    deviceStatus.isDoorLocked ? 100 : 0,           // Tür zu (100%) oder offen (0%)
+                    deviceStatus.lightConsumption || 0,
+                    deviceStatus.heaterTemperature || 0,
+                    deviceStatus.airConditionerCoolingLevel || 0,
+                    deviceStatus.tvVolume || 0,
+                    deviceStatus.isDoorLocked ? 100 : 0,
                 ],
             },
         ],
     };
 
-    const statusTexts = [
-        deviceStatus.isLightOn ? "An" : <Text style={styles.orangeText}>Aus</Text>,
-        deviceStatus.isHeaterOn ? `${deviceStatus.heaterTemperature} °C` : <Text style={styles.orangeText}>Aus</Text>,
-        deviceStatus.isAirConditionerOn ? `${deviceStatus.airConditionerCoolingLevel}%` : <Text style={styles.orangeText}>Aus</Text>,
-        deviceStatus.isTVOn ? `Laut ${deviceStatus.tvVolume}%` : <Text style={styles.orangeText}>Aus</Text>,
-        deviceStatus.isDoorLocked ? <Text style={styles.orangeText}>Gesperrt</Text> : "Offen",
+    const statusItems = [
+        {
+            label: "Licht",
+            value: deviceStatus.isLightOn ? "An" : "Aus",
+            color: deviceStatus.isLightOn ? colors.orchid : "#EE7A2E",
+        },
+        {
+            label: "Heizung",
+            value: deviceStatus.isHeaterOn ? `${deviceStatus.heaterTemperature} °C` : "Aus",
+            color: deviceStatus.isHeaterOn ? colors.orchid : "#EE7A2E",
+        },
+        {
+            label: "Klimaanlage",
+            value: deviceStatus.isAirConditionerOn ? `${deviceStatus.airConditionerCoolingLevel}%` : "Aus",
+            color: deviceStatus.isAirConditionerOn ? colors.orchid : "#EE7A2E",
+        },
+        {
+            label: "Fernseher",
+            value: deviceStatus.isTVOn ? `Lautstärke: ${deviceStatus.tvVolume}%` : "Aus",
+            color: deviceStatus.isTVOn ? colors.orchid : "#EE7A2E",
+        },
+        {
+            label: "Tür",
+            value: deviceStatus.isDoorLocked ? "Gesperrt" : "Offen",
+            color: deviceStatus.isDoorLocked ? colors.orchid : "#EE7A2E",
+        },
     ];
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>Gerätestatus</Text>
             <Text style={styles.infoText}>
-                Hier siehst du den aktuellen Status und Verbrauch deiner Smart-Home-Geräte.
+                Überblick über den aktuellen Status und Verbrauch deiner Smart-Home-Geräte.
             </Text>
 
             <BarChart
-                data={data}
+                data={chartData}
                 width={screenWidth - 40}
-                height={260}
-                yAxisSuffix={""}
+                height={240}
+                yAxisSuffix=""
+                fromZero
                 chartConfig={{
                     backgroundGradientFrom: "#fff",
                     backgroundGradientTo: "#fff",
                     decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(111, 66, 193, ${opacity})`, // lila
-                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    style: {
-                        borderRadius: 16,
-                    },
+                    color: (opacity = 1) => `rgba(111, 66, 193, ${opacity})`,
+                    labelColor: () => "#444",
+                    style: { borderRadius: 16 },
                     propsForBackgroundLines: {
-                        strokeWidth: 1,
-                        stroke: "#e3e3e3",
-                        strokeDasharray: "0",
+                        stroke: "#eee",
+                        strokeDasharray: "",
                     },
                 }}
-                verticalLabelRotation={15}
                 style={styles.chart}
-                fromZero
+                verticalLabelRotation={10}
                 showValuesOnTopOfBars
             />
 
-            <View style={styles.statusRow}>
-                {statusTexts.map((text, index) => (
-                    <Text key={index} style={styles.statusText}>
-                        {text}
-                    </Text>
+            <View style={styles.statusContainer}>
+                {statusItems.map((item, idx) => (
+                    <View key={idx} style={styles.statusCard}>
+                        <Text style={styles.statusLabel}>{item.label}</Text>
+                        <Text style={[styles.statusValue, { color: item.color }]}>
+                            {item.value}
+                        </Text>
+                    </View>
                 ))}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fafafa",
+        backgroundColor: "#fefefe",
         padding: 20,
-        justifyContent: "flex-start",
     },
     title: {
         fontSize: 26,
         fontWeight: "bold",
         color: colors.orchid,
-        marginBottom: 10,
         textAlign: "center",
+        marginBottom: 8,
     },
     infoText: {
-        fontSize: 16,
+        fontSize: 15,
         color: "#666",
         textAlign: "center",
         marginBottom: 20,
-        paddingHorizontal: 10,
     },
     chart: {
         borderRadius: 16,
+        marginBottom: 25,
     },
-    statusRow: {
+    statusContainer: {
         flexDirection: "row",
-        justifyContent: "space-around",
-        marginTop: 10,
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        gap: 10,
     },
-    statusText: {
-        fontSize: 14,
-        color: "#333",
-        width: (screenWidth - 40) / 5,
-        textAlign: "center",
-        fontWeight: "600",
+    statusCard: {
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        width: "48%",
+        padding: 16,
+        marginBottom: 10,
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
     },
-    orangeText: {
-        color: "#EE7A2E",
+    statusLabel: {
+        fontSize: 15,
         fontWeight: "600",
+        color: "#555",
+        marginBottom: 6,
+    },
+    statusValue: {
+        fontSize: 17,
+        fontWeight: "bold",
     },
 });
