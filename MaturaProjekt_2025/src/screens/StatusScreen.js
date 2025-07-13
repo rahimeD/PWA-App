@@ -100,7 +100,7 @@ export default function StatusScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fefefe",
+        backgroundColor: colors.sand,
         paddingHorizontal: 20,
         paddingTop: 20,
     },

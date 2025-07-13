@@ -54,7 +54,7 @@ function MainTabs() {
                     tabBarStyle: {
                         height: Platform.OS === "web" ? 75 : 65,
                         paddingBottom: Platform.OS === "ios" ? 20 : 10,
-                        paddingTop: 10,
+                        paddingTop: 20,
                         borderTopWidth: 1,
                         backgroundColor: "#fff",
                         position: "relative",
