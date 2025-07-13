@@ -8,7 +8,7 @@ import {
     TextInput,
     TouchableOpacity
 } from "react-native";
-import colors from "../constants/colors"; // Pfad anpassen, falls nötig
+import colors from "../constants/colors";
 
 const allTips = [
     {
@@ -64,7 +64,7 @@ export default function TipsScreen() {
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("Alle");
 
-    // Filtere Tipps nach Suchbegriff und Kategorie
+
     const filteredTips = allTips.filter(tip => {
         const matchesCategory = selectedCategory === "Alle" || tip.category === selectedCategory;
         const matchesSearch =

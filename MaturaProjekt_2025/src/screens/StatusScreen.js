@@ -1,21 +1,21 @@
 import React, { useContext } from "react";
-import { View, Text, StyleSheet, Dimensions, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { DeviceContext } from "../context/DeviceProvider";
 import colors from "../constants/colors";
 
-const screenWidth = Dimensions.get("window").width;
-
 export default function StatusScreen() {
     const { deviceStatus } = useContext(DeviceContext);
+    const { width: screenWidth } = useWindowDimensions();
 
+    // Werte für das Diagramm, max 100 für Normierung bei manchen Werten
     const chartData = {
         labels: ["Licht", "Heizung", "Klima", "TV", "Tür"],
         datasets: [
             {
                 data: [
-                    deviceStatus.lightConsumption || 0,
-                    deviceStatus.heaterTemperature || 0,
+                    deviceStatus.lightConsumption ? Math.min(deviceStatus.lightConsumption, 100) : 0,
+                    deviceStatus.heaterTemperature ? Math.min(deviceStatus.heaterTemperature * 4, 100) : 0, // Skalierung, z.B. 25°C -> 100%
                     deviceStatus.airConditionerCoolingLevel || 0,
                     deviceStatus.tvVolume || 0,
                     deviceStatus.isDoorLocked ? 100 : 0,
@@ -53,7 +53,7 @@ export default function StatusScreen() {
     ];
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
             <Text style={styles.title}>Gerätestatus</Text>
             <Text style={styles.infoText}>
                 Überblick über den aktuellen Status und Verbrauch deiner Smart-Home-Geräte.
@@ -62,33 +62,34 @@ export default function StatusScreen() {
             <BarChart
                 data={chartData}
                 width={screenWidth - 40}
-                height={240}
+                height={250}
                 yAxisSuffix=""
                 fromZero
                 chartConfig={{
                     backgroundGradientFrom: "#fff",
                     backgroundGradientTo: "#fff",
                     decimalPlaces: 0,
+                    barPercentage: 0.6,
                     color: (opacity = 1) => `rgba(111, 66, 193, ${opacity})`,
                     labelColor: () => "#444",
                     style: { borderRadius: 16 },
                     propsForBackgroundLines: {
                         stroke: "#eee",
-                        strokeDasharray: "",
+                        strokeDasharray: "", // durchgezogene Linien
                     },
                 }}
                 style={styles.chart}
-                verticalLabelRotation={10}
-                showValuesOnTopOfBars
+                verticalLabelRotation={0}
+                showValuesOnTopOfBars={true}
+                withInnerLines={true}
+                segments={5} // Anzahl horizontale Linien
             />
 
             <View style={styles.statusContainer}>
                 {statusItems.map((item, idx) => (
                     <View key={idx} style={styles.statusCard}>
                         <Text style={styles.statusLabel}>{item.label}</Text>
-                        <Text style={[styles.statusValue, { color: item.color }]}>
-                            {item.value}
-                        </Text>
+                        <Text style={[styles.statusValue, { color: item.color }]}>{item.value}</Text>
                     </View>
                 ))}
             </View>
@@ -100,7 +101,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fefefe",
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingTop: 20,
     },
     title: {
         fontSize: 26,
@@ -117,34 +119,36 @@ const styles = StyleSheet.create({
     },
     chart: {
         borderRadius: 16,
-        marginBottom: 25,
+        marginBottom: 30,
+        alignSelf: "center",
     },
     statusContainer: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
-        gap: 10,
+        gap: 12,
     },
     statusCard: {
         backgroundColor: "#fff",
         borderRadius: 12,
-        width: "48%",
-        padding: 16,
-        marginBottom: 10,
-        elevation: 2,
+        width: "48%", // 2 Karten pro Reihe
+        paddingVertical: 16,
+        paddingHorizontal: 14,
+        marginBottom: 16,
+        elevation: 3,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowRadius: 4,
     },
     statusLabel: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: "600",
         color: "#555",
         marginBottom: 6,
     },
     statusValue: {
-        fontSize: 17,
+        fontSize: 18,
         fontWeight: "bold",
     },
 });

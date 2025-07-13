@@ -7,30 +7,12 @@ import {
     FlatList,
     TouchableOpacity,
     Alert,
-    Platform,
     Modal,
     Animated,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 
-const colors = {
-    primary: "#EE7A2E",
-    obsidian: "#0E1015",
-    orchid: "#454697",
-    background: "#FFE8C4",
-    accent: "#1E88E5",
-    gray: "#999999",
-    white: "#fff",
-};
+import colors from "../constants/colors";
 
-const formatDateTime = (date) => {
-    if (!date) return "Zeit & Datum wählen";
-    return `${date.toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    })} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-};
 
 export default function ReminderScreen() {
     const [reminders, setReminders] = useState([
@@ -51,6 +33,9 @@ export default function ReminderScreen() {
     const [selectedDateTime, setSelectedDateTime] = useState(null);
     const [tempDateTime, setTempDateTime] = useState(new Date());
     const [showPickerModal, setShowPickerModal] = useState(false);
+
+    const [manualDate, setManualDate] = useState("");
+    const [manualTime, setManualTime] = useState("");
 
     // Animation für Speichern Feedback
     const [showSaveMessage, setShowSaveMessage] = useState(false);
@@ -74,19 +59,47 @@ export default function ReminderScreen() {
     };
 
     const addReminder = () => {
-        if (!deviceName.trim() || !selectedDateTime) {
-            Alert.alert("Fehlende Eingabe", "Bitte Gerätename und Datum/Zeit auswählen.");
+        if (!deviceName.trim()) {
+            Alert.alert("Fehlende Eingabe", "Bitte Gerätename eingeben.");
             return;
         }
+
+        let finalDateTime = selectedDateTime;
+
+        if (!finalDateTime && manualDate && manualTime) {
+            const dateParts = manualDate.split(".");
+            const timeParts = manualTime.split(":");
+
+            if (dateParts.length === 3 && timeParts.length === 2) {
+                const [day, month, year] = dateParts.map(Number);
+                const [hour, minute] = timeParts.map(Number);
+                finalDateTime = new Date(year, month - 1, day, hour, minute);
+            } else {
+                Alert.alert(
+                    "Ungültige Eingabe",
+                    "Bitte Datum im Format TT.MM.JJJJ und Zeit im Format HH:MM eingeben."
+                );
+                return;
+            }
+        }
+
+        if (!finalDateTime || isNaN(finalDateTime)) {
+            Alert.alert("Fehlende Eingabe", "Bitte Datum und Uhrzeit auswählen oder eingeben.");
+            return;
+        }
+
         const newReminder = {
             id: Date.now().toString(),
             deviceName: deviceName.trim(),
-            date: selectedDateTime.toLocaleDateString("de-DE"),
-            time: selectedDateTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            date: finalDateTime.toLocaleDateString("de-DE"),
+            time: finalDateTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
+
         setReminders((prev) => [newReminder, ...prev]);
         setDeviceName("");
         setSelectedDateTime(null);
+        setManualDate("");
+        setManualTime("");
         setTempDateTime(new Date());
         setShowPickerModal(false);
         showSaveFeedback();
@@ -116,23 +129,34 @@ export default function ReminderScreen() {
                 maxLength={20}
             />
 
-            <TouchableOpacity
-                activeOpacity={0.7}
-                style={styles.dateButton}
-                onPress={() => {
-                    setTempDateTime(selectedDateTime || new Date());
-                    setShowPickerModal(true);
-                }}
-            >
-                <Text style={styles.dateButtonText}>{formatDateTime(selectedDateTime)}</Text>
-            </TouchableOpacity>
+            <TextInput
+                style={styles.input}
+                placeholder="Datum (TT.MM.JJJJ)"
+                placeholderTextColor={colors.gray}
+                value={manualDate}
+                onChangeText={setManualDate}
+                keyboardType="numeric"
+            />
+
+            <TextInput
+                style={styles.input}
+                placeholder="Zeit (HH:MM)"
+                placeholderTextColor={colors.gray}
+                value={manualTime}
+                onChangeText={setManualTime}
+                keyboardType="numeric"
+            />
+
+
+
+
 
             <TouchableOpacity
                 activeOpacity={0.8}
                 style={styles.addButton}
                 onPress={addReminder}
             >
-                <Text style={styles.addButtonText}>+ Hinzufügen</Text>
+                <Text style={styles.addButtonText}>Hinzufügen</Text>
             </TouchableOpacity>
 
             <FlatList
@@ -148,17 +172,6 @@ export default function ReminderScreen() {
             <Modal visible={showPickerModal} transparent animationType="fade">
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Datum & Uhrzeit wählen</Text>
-                        <DateTimePicker
-                            value={tempDateTime}
-                            mode="datetime"
-                            display={Platform.OS === "ios" ? "spinner" : "default"}
-                            onChange={(e, selected) => {
-                                if (selected) setTempDateTime(selected);
-                            }}
-                            style={{ width: "100%" }}
-                            minimumDate={new Date()}
-                        />
                         <View style={styles.modalButtons}>
                             <TouchableOpacity
                                 style={styles.modalConfirmButton}
@@ -193,7 +206,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: colors.background,
+        backgroundColor: colors.sand,
     },
     title: {
         fontSize: 22,
@@ -207,7 +220,7 @@ const styles = StyleSheet.create({
         padding: 14,
         borderRadius: 10,
         fontSize: 18,
-        marginBottom: 18,
+        marginBottom: 14,
         borderWidth: 1,
         borderColor: colors.gray,
     },
@@ -229,7 +242,7 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
     addButton: {
-        backgroundColor: colors.accent,
+        backgroundColor: colors.primary,
         paddingVertical: 16,
         borderRadius: 10,
         alignItems: "center",

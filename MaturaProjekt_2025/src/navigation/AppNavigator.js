@@ -33,11 +33,12 @@ function MainTabs() {
         <View style={{ flex: 1 }}>
             <Tab.Navigator
                 screenOptions={({ route }) => ({
+                    tabBarShowLabel: false, // Labels unter Icons ausblenden
                     tabBarIcon: ({ color, size }) => {
                         switch (route.name) {
                             case "Home":
                                 return <SvgIcon IconComponent={HouseChimneyIcon} color={color} size={size} />;
-                            case "Control":
+                            case "Gerätesteuerung":
                                 return <SvgIcon IconComponent={RemoteControlIcon} color={color} size={size} />;
                             case "Status":
                                 return <SvgIcon IconComponent={PrognoseIcon} color={color} size={size} />;
@@ -51,7 +52,7 @@ function MainTabs() {
                     tabBarInactiveTintColor: "black",
                     headerShown: false,
                     tabBarStyle: {
-                        height: Platform.OS === "web" ? 90 : 65,
+                        height: Platform.OS === "web" ? 75 : 65,
                         paddingBottom: Platform.OS === "ios" ? 20 : 10,
                         paddingTop: 10,
                         borderTopWidth: 1,
@@ -61,7 +62,7 @@ function MainTabs() {
                 })}
             >
                 <Tab.Screen name="Home" component={HomeScreen} />
-                <Tab.Screen name="Control" component={ControlScreen} />
+                <Tab.Screen name="Gerätesteuerung" component={ControlScreen} />
                 <Tab.Screen name="Status" component={StatusScreen} />
                 <Tab.Screen name="Einstellungen" component={SettingsScreen} />
             </Tab.Navigator>
@@ -80,11 +81,68 @@ export default function AppNavigator() {
             <SafeAreaProvider>
                 <NavigationContainer>
                     <Stack.Navigator initialRouteName="Login">
-                        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-                        <Stack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
-                        <Stack.Screen name="Tipps" component={TipsScreen} options={{ headerShown: true, title: "Energiespartipps" }} />
-                        <Stack.Screen name="Prognose" component={JobMonitorScreen} options={{ headerShown: true, title: "Energie-Prognose" }} />
-                        <Stack.Screen name="Erinnerungen" component={ReminderScreen} options={{ title: "Erinnerungen" }} />
+                        <Stack.Screen
+                            name="Login"
+                            component={LoginScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="Main"
+                            component={MainTabs}
+                            options={{ headerShown: false }}
+                        />
+
+                        <Stack.Screen
+                            name="Control"
+                            component={ControlScreen}
+                            options={{
+                                title: "Gerätesteuerung",
+                                headerStyle: { backgroundColor: "#FFFFFF" },
+                                headerTitleStyle: { fontWeight: "bold", color: "#000" },
+                                headerTintColor: "#000",
+                            }}
+                        />
+
+                        <Stack.Screen
+                            name="Status"
+                            component={StatusScreen}
+                            options={{
+                                title: "Gerätestatus",
+                                headerStyle: { backgroundColor: "#FFFFFF" },
+                                headerTitleStyle: { fontWeight: "bold", color: "#000" },
+                                headerTintColor: "#000",
+                            }}
+                        />
+                        <Stack.Screen
+                            name="Tipps"
+                            component={TipsScreen}
+                            options={{
+                                title: "Energiespartipps",
+                                headerStyle: { backgroundColor: "#FFFFFF" },
+                                headerTitleStyle: { fontWeight: "bold", color: "#000" },
+                                headerTintColor: "#000",
+                            }}
+                        />
+                        <Stack.Screen
+                            name="Prognose"
+                            component={JobMonitorScreen}
+                            options={{
+                                title: "Energie-Prognose",
+                                headerStyle: { backgroundColor: "#FFFFFF" },
+                                headerTitleStyle: { fontWeight: "bold", color: "#000" },
+                                headerTintColor: "#000",
+                            }}
+                        />
+                        <Stack.Screen
+                            name="Erinnerungen"
+                            component={ReminderScreen}
+                            options={{
+                                title: "Erinnerungen",
+                                headerStyle: { backgroundColor: "#FFFFFF" },
+                                headerTitleStyle: { fontWeight: "bold", color: "#000" },
+                                headerTintColor: "#000",
+                            }}
+                        />
                     </Stack.Navigator>
                 </NavigationContainer>
             </SafeAreaProvider>
