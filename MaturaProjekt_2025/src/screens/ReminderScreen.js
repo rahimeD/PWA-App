@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
     View,
     Text,
@@ -7,9 +7,9 @@ import {
     FlatList,
     TouchableOpacity,
     Alert,
-    Dimensions,
     Platform,
     Modal,
+    Animated,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -17,80 +17,60 @@ const colors = {
     primary: "#EE7A2E",
     obsidian: "#0E1015",
     orchid: "#454697",
-    sand: "#F4F2ED",
-    steel: "#1D1E1B",
-    white: "#FFFFFF",
-    lightGray: "#F5F5F5",
-    gray: "#CCCCCC",
     background: "#FFE8C4",
     accent: "#1E88E5",
+    gray: "#999999",
+    white: "#fff",
 };
 
-const screenWidth = Dimensions.get("window").width;
-
 const formatDateTime = (date) => {
-    if (!date) return "🗓 Zeit & Datum auswählen";
+    if (!date) return "Zeit & Datum wählen";
     return `${date.toLocaleDateString("de-DE", {
-        weekday: "short",
         day: "2-digit",
         month: "2-digit",
-    })} – ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+        year: "numeric",
+    })} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 };
 
 export default function ReminderScreen() {
-    const [reminders, setReminders] = useState([]);
+    const [reminders, setReminders] = useState([
+        {
+            id: "1",
+            deviceName: "Heizung",
+            time: "08:00",
+            date: new Date().toLocaleDateString("de-DE"),
+        },
+        {
+            id: "2",
+            deviceName: "Kaffeemaschine",
+            time: "07:15",
+            date: new Date(Date.now() + 86400000).toLocaleDateString("de-DE"),
+        },
+    ]);
     const [deviceName, setDeviceName] = useState("");
     const [selectedDateTime, setSelectedDateTime] = useState(null);
     const [tempDateTime, setTempDateTime] = useState(new Date());
     const [showPickerModal, setShowPickerModal] = useState(false);
 
-    // Neue States für manuelle Eingabe
-    const [manualDate, setManualDate] = useState(""); // z.B. "07.06.2025"
-    const [manualTime, setManualTime] = useState(""); // z.B. "12:00"
+    // Animation für Speichern Feedback
+    const [showSaveMessage, setShowSaveMessage] = useState(false);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    // Hilfsfunktion, um Datum und Zeit aus Strings zu einem Date-Objekt zu machen
-    const parseDateTimeFromManualInput = (dateStr, timeStr) => {
-        // Datum parsen (TT.MM.JJJJ)
-        const dateParts = dateStr.split(".");
-        if (dateParts.length !== 3) return null;
-
-        const day = parseInt(dateParts[0], 10);
-        const month = parseInt(dateParts[1], 10) - 1; // Monate 0-basiert
-        const year = parseInt(dateParts[2], 10);
-
-        // Zeit parsen (HH:mm)
-        const timeParts = timeStr.split(":");
-        if (timeParts.length !== 2) return null;
-
-        const hours = parseInt(timeParts[0], 10);
-        const minutes = parseInt(timeParts[1], 10);
-
-        if (
-            isNaN(day) || isNaN(month) || isNaN(year) ||
-            isNaN(hours) || isNaN(minutes)
-        ) return null;
-
-        const dt = new Date(year, month, day, hours, minutes);
-        if (dt.toString() === "Invalid Date") return null;
-
-        return dt;
-    };
-
-    const handleConfirmDateTime = () => {
-        // Wenn manuelle Eingabe vorhanden, versuche diese zu parsen
-        if (manualDate.trim() && manualTime.trim()) {
-            const parsedDate = parseDateTimeFromManualInput(manualDate.trim(), manualTime.trim());
-            if (!parsedDate) {
-                Alert.alert("Ungültige Eingabe", "Bitte gib ein gültiges Datum und Uhrzeit im Format TT.MM.JJJJ und HH:mm ein.");
-                return;
-            }
-            setSelectedDateTime(parsedDate);
-            setTempDateTime(parsedDate);
-        } else {
-            // sonst benutze Picker-Wert
-            setSelectedDateTime(tempDateTime);
-        }
-        setShowPickerModal(false);
+    const showSaveFeedback = () => {
+        setShowSaveMessage(true);
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start(() => {
+            setTimeout(() => {
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 500,
+                    useNativeDriver: true,
+                }).start(() => setShowSaveMessage(false));
+            }, 1500);
+        });
     };
 
     const addReminder = () => {
@@ -98,32 +78,30 @@ export default function ReminderScreen() {
             Alert.alert("Fehlende Eingabe", "Bitte Gerätename und Datum/Zeit auswählen.");
             return;
         }
-
-        setReminders((prev) => [
-            ...prev,
-            {
-                id: Date.now().toString(),
-                deviceName: deviceName.trim(),
-                time: selectedDateTime.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                }),
-                date: selectedDateTime.toLocaleDateString("de-DE", {
-                    weekday: "short",
-                    day: "2-digit",
-                    month: "2-digit",
-                }),
-            },
-        ]);
-
+        const newReminder = {
+            id: Date.now().toString(),
+            deviceName: deviceName.trim(),
+            date: selectedDateTime.toLocaleDateString("de-DE"),
+            time: selectedDateTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        };
+        setReminders((prev) => [newReminder, ...prev]);
         setDeviceName("");
         setSelectedDateTime(null);
         setTempDateTime(new Date());
-        setManualDate("");
-        setManualTime("");
-
-        Alert.alert("Erinnerung gespeichert", "Die Erinnerung wurde erfolgreich hinzugefügt.");
+        setShowPickerModal(false);
+        showSaveFeedback();
     };
+
+    const renderReminder = ({ item }) => (
+        <View style={styles.reminderCard}>
+            <Text style={styles.reminderDevice} numberOfLines={1}>
+                {item.deviceName}
+            </Text>
+            <Text style={styles.reminderDateTime}>
+                {item.date} · {item.time}
+            </Text>
+        </View>
+    );
 
     return (
         <View style={styles.container}>
@@ -135,37 +113,35 @@ export default function ReminderScreen() {
                 placeholderTextColor={colors.gray}
                 value={deviceName}
                 onChangeText={setDeviceName}
+                maxLength={20}
             />
 
             <TouchableOpacity
-                style={styles.button}
+                activeOpacity={0.7}
+                style={styles.dateButton}
                 onPress={() => {
                     setTempDateTime(selectedDateTime || new Date());
                     setShowPickerModal(true);
                 }}
             >
-                <Text style={styles.buttonText}>{formatDateTime(selectedDateTime)}</Text>
+                <Text style={styles.dateButtonText}>{formatDateTime(selectedDateTime)}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.button, styles.addButton]} onPress={addReminder}>
-                <Text style={styles.buttonText}>Erinnerung hinzufügen</Text>
+            <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.addButton}
+                onPress={addReminder}
+            >
+                <Text style={styles.addButtonText}>+ Hinzufügen</Text>
             </TouchableOpacity>
 
             <FlatList
                 data={reminders}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <View style={styles.reminderCard}>
-                        <Text style={styles.reminderText}>
-                            {item.deviceName} – {item.date} {item.time}
-                        </Text>
-                    </View>
-                )}
-                style={{ marginTop: 20 }}
+                renderItem={renderReminder}
+                contentContainerStyle={{ paddingBottom: 30 }}
                 ListEmptyComponent={
-                    <Text style={{ textAlign: "center", color: colors.gray }}>
-                        Keine Erinnerungen
-                    </Text>
+                    <Text style={{ textAlign: "center", color: colors.gray }}>Keine Erinnerungen</Text>
                 }
             />
 
@@ -173,124 +149,194 @@ export default function ReminderScreen() {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Datum & Uhrzeit wählen</Text>
-
-                        {/* Manuelle Eingabe */}
-                        <TextInput
-                            style={[styles.input, { marginBottom: 8 }]}
-                            placeholder="Datum (TT.MM.JJJJ)"
-                            keyboardType="numbers-and-punctuation"
-                            value={manualDate}
-                            onChangeText={setManualDate}
-                        />
-                        <TextInput
-                            style={[styles.input, { marginBottom: 16 }]}
-                            placeholder="Uhrzeit (HH:mm)"
-                            keyboardType="numbers-and-punctuation"
-                            value={manualTime}
-                            onChangeText={setManualTime}
-                        />
-
-                        {/* DateTimePicker */}
                         <DateTimePicker
                             value={tempDateTime}
                             mode="datetime"
                             display={Platform.OS === "ios" ? "spinner" : "default"}
-                            onChange={(event, selected) => {
-                                if (selected) {
-                                    setTempDateTime(selected);
-                                    // Update manuelle Eingabe auch mit Picker-Wert, damit die Inputs synchron sind
-                                    setManualDate(
-                                        selected.toLocaleDateString("de-DE", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                        })
-                                    );
-                                    setManualTime(
-                                        selected.toLocaleTimeString([], {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        })
-                                    );
-                                }
+                            onChange={(e, selected) => {
+                                if (selected) setTempDateTime(selected);
                             }}
-                            style={{ width: screenWidth * 0.8 }}
+                            style={{ width: "100%" }}
+                            minimumDate={new Date()}
                         />
-
-                        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmDateTime}>
-                            <Text style={styles.buttonText}>Fertig</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.confirmButton, { backgroundColor: colors.gray, marginTop: 10 }]}
-                            onPress={() => setShowPickerModal(false)}
-                        >
-                            <Text style={[styles.buttonText, { color: colors.obsidian }]}>Abbrechen</Text>
-                        </TouchableOpacity>
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={styles.modalConfirmButton}
+                                onPress={() => {
+                                    setSelectedDateTime(tempDateTime);
+                                    setShowPickerModal(false);
+                                }}
+                            >
+                                <Text style={styles.modalConfirmText}>Speichern</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.modalCancelButton}
+                                onPress={() => setShowPickerModal(false)}
+                            >
+                                <Text style={styles.modalCancelText}>Abbrechen</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>
+
+            {showSaveMessage && (
+                <Animated.View style={[styles.saveMessageContainer, { opacity: fadeAnim }]}>
+                    <Text style={styles.saveMessageText}>Erinnerung gespeichert!</Text>
+                </Animated.View>
+            )}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: colors.background },
-    title: { fontSize: 26, fontWeight: "bold", color: colors.obsidian, marginBottom: 20, textAlign: "center" },
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: colors.background,
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "700",
+        color: colors.obsidian,
+        marginBottom: 20,
+        textAlign: "center",
+    },
     input: {
+        backgroundColor: colors.white,
+        padding: 14,
+        borderRadius: 10,
+        fontSize: 18,
+        marginBottom: 18,
         borderWidth: 1,
         borderColor: colors.gray,
-        backgroundColor: colors.white,
-        padding: 12,
-        borderRadius: 10,
-        fontSize: 16,
-        color: colors.obsidian,
-        marginBottom: 12,
     },
-    button: {
+    dateButton: {
         backgroundColor: colors.primary,
-        paddingVertical: 10,
-        borderRadius: 8,
+        paddingVertical: 16,
+        borderRadius: 10,
         alignItems: "center",
-        alignSelf: "center",
-        width: screenWidth * 0.8,
-        marginBottom: 12,
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 6,
+        elevation: 5,
     },
-    addButton: { backgroundColor: colors.accent },
-    buttonText: { color: colors.white, fontSize: 16, fontWeight: "600" },
+    dateButtonText: {
+        color: colors.white,
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    addButton: {
+        backgroundColor: colors.accent,
+        paddingVertical: 16,
+        borderRadius: 10,
+        alignItems: "center",
+        marginBottom: 30,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.3,
+        shadowRadius: 7,
+        elevation: 6,
+    },
+    addButtonText: {
+        color: colors.white,
+        fontWeight: "700",
+        fontSize: 18,
+    },
     reminderCard: {
         backgroundColor: colors.white,
-        padding: 15,
-        borderRadius: 10,
-        borderLeftWidth: 5,
+        paddingVertical: 14,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        marginBottom: 12,
+        borderLeftWidth: 6,
         borderLeftColor: colors.orchid,
         shadowColor: "#000",
-        shadowOpacity: 0.05,
         shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 4,
-        elevation: 2,
-        marginBottom: 10,
+        shadowOpacity: 0.12,
+        shadowRadius: 3,
+        elevation: 3,
     },
-    reminderText: { fontSize: 16, color: colors.steel },
+    reminderDevice: {
+        fontWeight: "700",
+        fontSize: 18,
+        color: colors.obsidian,
+    },
+    reminderDateTime: {
+        color: colors.gray,
+        fontSize: 15,
+        marginTop: 5,
+    },
     modalContainer: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.4)",
+        backgroundColor: "rgba(0,0,0,0.35)",
         justifyContent: "center",
-        alignItems: "center",
+        paddingHorizontal: 30,
     },
     modalContent: {
         backgroundColor: colors.white,
-        padding: 20,
-        borderRadius: 12,
+        borderRadius: 15,
+        padding: 28,
         alignItems: "center",
-        width: screenWidth * 0.9,
     },
-    modalTitle: { fontSize: 18, fontWeight: "bold", color: colors.obsidian, marginBottom: 10 },
-    confirmButton: {
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: "700",
+        color: colors.obsidian,
+        marginBottom: 18,
+    },
+    modalButtons: {
+        flexDirection: "row",
+        marginTop: 28,
+        width: "100%",
+        justifyContent: "space-between",
+    },
+    modalConfirmButton: {
         backgroundColor: colors.accent,
-        marginTop: 15,
-        paddingVertical: 10,
-        borderRadius: 8,
-        width: "60%",
+        paddingVertical: 14,
+        borderRadius: 10,
+        flex: 1,
+        marginRight: 12,
         alignItems: "center",
+    },
+    modalCancelButton: {
+        backgroundColor: colors.gray,
+        paddingVertical: 14,
+        borderRadius: 10,
+        flex: 1,
+        marginLeft: 12,
+        alignItems: "center",
+    },
+    modalConfirmText: {
+        color: colors.white,
+        fontWeight: "700",
+        fontSize: 18,
+    },
+    modalCancelText: {
+        color: colors.obsidian,
+        fontWeight: "700",
+        fontSize: 18,
+    },
+    saveMessageContainer: {
+        position: "absolute",
+        bottom: 50,
+        left: 20,
+        right: 20,
+        backgroundColor: colors.accent,
+        paddingVertical: 14,
+        borderRadius: 30,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.35,
+        shadowRadius: 7,
+        elevation: 7,
+    },
+    saveMessageText: {
+        color: colors.white,
+        fontWeight: "700",
+        fontSize: 18,
     },
 });
